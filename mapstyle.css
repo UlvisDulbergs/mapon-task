@@ -1,0 +1,56 @@
+body{
+    font-family: 'Trebuchet MS', sans-serif;
+}
+.container {  
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "input-field map map"
+      "input-field map map"
+      "input-field table-field table-field";
+    
+}
+
+.input-field {
+    grid-area: input-field;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px black solid;
+
+}
+  
+#map { 
+    grid-area: map;
+    height: 600px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+    margin: 20px;
+    margin-bottom: 5px;
+}
+  
+.table-field { 
+    grid-area: table-field;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+.input-child{
+    margin: 20px;
+    
+}
+
+#table-data th{
+    padding-right: 70px;
+    background-color: #0b852b;
+    
+}
+#table-data td{
+    padding-right: 70px;
+    background-color: #b8b8b8;
+}
+
+

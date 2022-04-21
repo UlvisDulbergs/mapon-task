@@ -1,0 +1,58 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "6d5ee4a476ca70e195055cbde67c23f7",
+    "packages": [
+        {
+            "name": "mapon-com/client-api-php-sdk",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mapon-com/client-api-php-sdk.git",
+                "reference": "4b7b884e7d52452073c844f998cb5697f48e0cb0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mapon-com/client-api-php-sdk/zipball/4b7b884e7d52452073c844f998cb5697f48e0cb0",
+                "reference": "4b7b884e7d52452073c844f998cb5697f48e0cb0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "lib-curl": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Mapon": "src/",
+                    "App": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Mapon.com"
+                }
+            ],
+            "description": "Mapon API PHP SDK",
+            "support": {
+                "issues": "https://github.com/mapon-com/client-api-php-sdk/issues",
+                "source": "https://github.com/mapon-com/client-api-php-sdk/tree/master"
+            },
+            "time": "2017-02-17T15:15:21+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.2.0"
+}

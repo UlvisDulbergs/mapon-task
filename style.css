@@ -1,0 +1,44 @@
+body{
+    font-family: 'Trebuchet MS', sans-serif;
+}
+
+h1{
+    font-weight: bolder;
+}
+
+#login-form{
+    width: auto;
+    margin-top: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.field{
+    border: none;
+    border-bottom: 1px solid #7c7d7c;
+    display: flex;
+    flex-direction: column;
+    margin: 70px;
+    width: 250px;
+    outline: none;
+}
+
+
+#btn{
+    background: #1aa115;
+    border: none;
+    width: 250px;
+    height: 30px;
+    border-top-left-radius:25px;
+    border-top-right-radius:25px;
+    border-bottom-right-radius:25px;
+    border-bottom-left-radius:25px;
+    align-items: center;
+    justify-content: center;
+}
+#btn:hover{
+    background-color: #095406;
+}
+

@@ -1,0 +1,197 @@
+<?php
+session_start();
+use App\Models\Model;
+use Mapon\MaponApi;
+//Api conn params
+$apiUrl = 'https://mapon.com/api/v1/';
+$apiKey = "5333a9720180356462a0d9615a38f6dfff4581aa";
+
+//Api conn, Control file conn
+$model = new Model();
+$api = new MaponApi($apiKey, $apiUrl);
+
+//Array for selected cars
+$selectedCars = [];
+
+//Returns possible car names from API
+$carNames = $model->getCarNames();
+
+//Submit btn check
+if(isset($_POST["submit"]) && !empty($_POST["carSelect"])){
+
+   $_SESSION["routeData"] = [];
+   $_SESSION["carNames"] = [];
+    //Takes data from _POST
+    $dateFrom = $_POST["date-start"];
+    $dateTill = $_POST["date-end"];
+    $timeFrom = $_POST["time-start"];
+    $timeTill = $_POST["time-end"];
+
+    //Creates date formats for API
+    $dateFormatStart = $model->convertTime($dateFrom, $timeFrom);
+    $dateFormatEnd = $model->convertTime($dateTill, $timeTill); 
+
+    //Puts selected cars in array
+    array_push($selectedCars, $_POST["carSelect"]);
+
+    //Gets route data
+    $routeData = $model->getRoute($dateFormatStart, $dateFormatEnd, 0, $selectedCars[0], "polyline");
+    
+    //Puts in a session, bcs if submit is set 2nd time , all the data will be bye bye
+    array_push($_SESSION["routeData"], $routeData);
+
+    //Gets selected ID
+    $selectedId = $model->returnForeach($routeData)->unit_id;
+
+    //Gets data about unit
+    $carData = $model->getUnit(0, $selectedId); 
+    array_push($_SESSION["carNames"], $carData);
+
+    //Gets route id
+    $routeIds = [];
+    foreach($routeData->data->units as $unitValue => $unitData){
+        foreach($unitData->routes as $route){
+            if($route->type == "route"){
+                array_push($routeIds, $route->route_id);
+            }
+        }
+    }
+    
+}
+//Polyline points
+if(isset($_POST["route-submit"])){
+    $id = $_POST["route-id"];
+    $array = array_shift($_SESSION["routeData"]);
+    $cars = array_shift($_SESSION["carNames"]);
+    $points = $model->returnPolylinePoints($array, $id);
+    $infoArray = $model->returnRouteWithId($array, $id);
+    $arr = array_shift($infoArray);
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <link rel="stylesheet" href="src/style/mapstyle.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="input-field">
+            <form method="POST" action="/map">
+                <!--- Outputs all the car names --->
+                <?php for($x = 0;$x <= count($carNames);$x++){?>
+                    <input type="checkbox" name="carSelect" id="carSelect" value="<?php echo $carNames["carId"][$x]?>" class="input-child">
+                    <label for="carSelect"><?php echo $carNames["label"][$x]?></label>
+                <?php }?>
+
+                </br>
+                <!--- Input fields --->       
+                <label for="start-date">Date from:</label>
+                <input type="date" id="start-date" name="date-start" class="input-child">
+
+                <label for="time-start">Start time:</label>
+                <input type="time" id="time-start" name="time-start" class="input-child">
+                </br>
+
+                <label for="end-date">Date till:</label>
+                <input type="date" id="end-date" name="date-end" class="input-child">
+
+                <label for="time-end">End time:</label>
+                <input type="time" id="time-end" name="time-end" class="input-child">
+
+                </br>
+                <input type="submit" name="submit" id="submit" value="Enter" class="input-child">
+                <?php if(!empty($routeIds)){?>
+                <select name="route-id" id="route-id">
+                    <?php foreach($routeIds as $routeId){;?>
+                    <option value="<?php echo $routeId;?>"><?php echo $routeId ?></option>
+                    <?php } ?>
+                </select>
+                <input type="submit" name="route-submit" id="route-submit">
+                <?php } ?>
+            </form>
+
+        </div>
+        <!--- Table --->
+        <div class="table-field">
+            <table id="table-data">
+                <tbody>
+                    <tr>
+                        <th>Car Name</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Address</th>
+                        <th>Distance</th>
+                        <th>Driving Time</th>
+                        <th>Average Speed</th>
+                        <th>Max Speed</th>
+                    </tr>
+                    <tr>
+                        <td><?= (isset($_POST["route-submit"])) ? $model->returnForeach($cars)->label : " "?></td>
+                        <td><?= (isset($_POST["route-submit"])) ?  $arr->start->time: " "?></td>
+                        <td><?= (isset($_POST["route-submit"])) ?  $arr->end->time: " "?></td>
+                        <td><?= (isset($_POST["route-submit"])) ?  $arr->start->address: " "?></td>
+                        <td><?= (isset($_POST["route-submit"])) ?  ($arr->distance / 1000). "km": " "?></td>
+                        <td><?= (isset($_POST["route-submit"])) ?  $model->timeToNormal($arr->start->time, $arr->end->time) . " hours": " "?></td>
+                        <td><?= (isset($_POST["route-submit"])) ?  $arr->avg_speed . "km/h" : " "?></td>
+                        <td><?= (isset($_POST["route-submit"])) ?  $arr->max_speed . "km/h" : " "?></td>
+
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--- Map --->
+        <div id="map">
+
+        </div>
+    </div>
+    <script>
+
+    function initMap() {
+        <?php if(!isset($_POST["route-submit"])){ ?>
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 8,
+                center: { lat: 51.45628 , lng: 12.11054 },
+                mapTypeId: "terrain",
+            });
+        <?php }else{ ?>
+            
+        const routeCoords = [ 
+            <?php foreach($points as $point){ ?>
+                { lat: <?php echo $point["lat"]?> , lng: <?php echo $point["lng"]?> },
+            <?php } ?> 
+        ];
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: { lat: <?php echo $points[0]["lat"]?> , lng: <?php echo $points[0]["lng"]?> },
+            mapTypeId: "terrain",
+        });
+
+        const routePath = new google.maps.Polyline({
+            path: routeCoords,
+            geodesic: true,
+            strokeColor: "#FF0000",
+            strokeOpacity: 1.0,
+            strokeWeight: 2,
+        });
+
+        const startMarker = new google.maps.Marker({
+            position: { lat: <?php echo $point["lat"]?> , lng: <?php echo $point["lng"]?> },
+            map: map,
+        });
+
+        routePath.setMap(map);
+        <?php } ?>
+    }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9E7GlecR4da9zzsF46D_mnum1uUQ6nqc&callback=initMap"></script>
+</body>
+</html>
